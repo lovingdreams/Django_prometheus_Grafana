@@ -1,4 +1,4 @@
-from myproject.celery import app
+from my_project.celery import app
 from common.configs.config import config as cfg
 import pika
 import json
@@ -28,13 +28,13 @@ def publish(message):
 
     # Declare the exchange (if not already declared)
     channel.exchange_declare(
-        exchange='myprojectexchange',
+        exchange='my_projectexchange',
         exchange_type='fanout'
     )
 
     # Publish the event to the exchange
     channel.basic_publish(
-        exchange='myprojectexchange',
+        exchange='my_projectexchange',
         routing_key='',
         body=json.dumps(message)
     )
