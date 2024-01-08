@@ -1,3 +1,4 @@
+
 from django.http import HttpResponse
 from rest_framework import generics
 from .models import Product
@@ -29,5 +30,5 @@ class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
 
 def home(request):
-    html = "<html><body><h1>Hello!</h1></body></html>"
+    html = "<html><body><h1>Home Page!</h1></body></html>"
     return HttpResponse(html)

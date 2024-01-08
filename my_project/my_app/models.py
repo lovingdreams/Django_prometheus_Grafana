@@ -21,3 +21,4 @@ class ProductInventory(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - Inventory: {self.inventory_count}"
+

@@ -6,7 +6,6 @@ class InventoryCountField(serializers.RelatedField):
     def to_representation(self, value):
         if value:
             return value.inventory_count
-        return None
 
 
 class ProductSerializer(serializers.ModelSerializer):

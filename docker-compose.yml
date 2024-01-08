@@ -8,7 +8,7 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8000:8000"
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn --access-logfile - --workers 3 --max-requests 1000 --max-requests-jitter 50 --bind 0.0.0.0:8000 --env CONFIG_PATH=common/configs/prod.cfg my_project.wsgi:application
 
   app_2:
     container_name: app2
@@ -17,7 +17,17 @@ services:
       dockerfile: ./Dockerfile
     ports:
       - "8080:8080"
-    command: python manage.py runserver 0.0.0.0:8080
+    command: sh -c "sleep 5 && python consumer.py"
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: "rabbitmq"
+    ports:
+      - "5672:5672"  # RabbitMQ default port
+      - "15672:15672"  # RabbitMQ management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
 
   prometheus:
     image: prom/prometheus

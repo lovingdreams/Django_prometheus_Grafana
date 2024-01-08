@@ -1,6 +1,6 @@
 from prometheus_client import start_http_server, Counter
 
-start_http_server(9798)  # Choose a port different from Django
+start_http_server(8080)  # Choose a port different from Django
 
 consumer_metric = Counter('consumer_requests_total', 'Total number of requests handled by the consumer')
 
@@ -9,14 +9,14 @@ consumer_metric.inc()
 
 import os
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "myproject.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "my_project.settings")
 django.setup()
 
 
 import pika
 import json
 from common.configs.config import config as cfg
-from myapp.models import Product, ProductInventory
+from my_app.models import Product, ProductInventory
 
 
 
@@ -32,6 +32,7 @@ parameters = pika.ConnectionParameters(
     connection_attempts=int(cfg.get("rabbit_mq", "CONNECTION_ATTEMPTS")),
 )
 
+print("RabbitMQ Connection Parameters:", parameters)
 
 def callback(ch, method, properties, body):
     # Process the received message body
@@ -53,9 +54,19 @@ def callback(ch, method, properties, body):
     # You can parse the body to extract product_id and action if needed
 
 
+print("RabbitMQ Connection Parameters:", parameters)
+
 # Establish a connection to RabbitMQ using the specified parameters
-connection = pika.BlockingConnection(parameters)
-channel = connection.channel()
+try:
+    connection = pika.BlockingConnection(parameters)
+    channel = connection.channel()
+except pika.exceptions.AMQPConnectionError as e:
+    print("Error connecting to RabbitMQ:", e)
+    exit(1)
+
+
+
+
 
 # Declare the exchange (if not already declared)
 channel.exchange_declare(exchange='myprojectexchange', exchange_type='fanout')
