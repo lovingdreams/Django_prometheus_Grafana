@@ -1,7 +1,9 @@
+
 version: '3.7'
 
 services:
-  app_1:
+  app1:
+    image: django-prom_repo-working-app_1 # docker image of the application
     container_name: app1
     build:
       context: .
@@ -9,8 +11,11 @@ services:
     ports:
       - "8000:8000"
     command: gunicorn --access-logfile - --workers 3 --max-requests 1000 --max-requests-jitter 50 --bind 0.0.0.0:8000 --env CONFIG_PATH=common/configs/prod.cfg my_project.wsgi:application
+    deploy:
+      replicas: 2
 
-  app_2:
+  app2:
+    image: django-prom_repo-working-app_1 # docker image of the application
     container_name: app2
     build:
       context: .
@@ -18,6 +23,9 @@ services:
     ports:
       - "8080:8080"
     command: sh -c "sleep 5 && python consumer.py"
+    deploy:
+      replicas: 2
+
 
   rabbitmq:
     image: "rabbitmq:management"
@@ -35,3 +43,25 @@ services:
       - ./prometheus/:/etc/prometheus/
     ports:
       - "9090:9090"
+
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pushgateway
+    ports:
+      - 9091:9091
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    expose:
+      - 9100
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
